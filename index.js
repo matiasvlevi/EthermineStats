@@ -3,14 +3,14 @@ const fs = require('fs');
 const Ethermine = require('ethermine-api');
 const Person = require('./methods/person.js');
 const Board = require('./methods/board.js');
-const updateMin = 0.05;
+const updateMin = 15;
 const miner = "0x54CBb86D5e2895B2573F1C78A02EA4120Bf67a0C";
 const ethermine = new Ethermine();
 ethermine.getMinerPayouts(miner, function(err, pay) {
 
 	payouts = pay.data.length;
 
-	//console.log(payouts)
+	
 	let path = './data/stat_payout_'+payouts+'.json';
 
 	if (!fs.existsSync(path)) {
@@ -19,13 +19,14 @@ ethermine.getMinerPayouts(miner, function(err, pay) {
 
 	const datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
 	const data = new Board(datajson);
-	console.log(data);
+	//console.log(data);
 
 	function getStats() {
+		console.log('Updating Stats');
 		const ethermine = new Ethermine();
-		ethermine.getMinerPayouts(miner, function(err, data) {
-		  console.log(data.data.length)
-		})
+		//ethermine.getMinerPayouts(miner, function(err, data) {
+		  //console.log(data.data.length)
+		//})
 		ethermine.getMinerWorkers(miner,function(err,out){
 			//console.log(err, out.data);
 
@@ -51,12 +52,14 @@ ethermine.getMinerPayouts(miner, function(err, pay) {
 			data.totalchecks++;
 
 			data.percent();
-
-
+			console.log(data.totalchecks + ".");
+			for (let worker of data.workers) {
+				console.log("	- "+worker.name +": "+worker.percent);
+			}
 			fs.writeFileSync('./data/stat_payout_'+payouts+'.json',JSON.stringify(data),'utf-8');
 		});
 	}
-
+	getStats();
 	setInterval(function() {
 	  getStats();
 	}, 60 * updateMin * 1000); // 60 * 1000 milsec
