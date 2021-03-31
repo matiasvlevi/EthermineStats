@@ -4,6 +4,8 @@ module.exports = class Board {
         if(data !== undefined ){
             this.totalchecks = data.totalchecks;
             this.workers = [];
+            this.startDate = data.startDate;
+            this.lastmodifiedDate = data.lastmodifiedDate;
             for (let i = 0; i < data.workers.length;i++) {
                 const obj = data.workers[i];
                 let person = new Person('');
@@ -12,6 +14,8 @@ module.exports = class Board {
             }
         } else {
             this.totalchecks = 0;
+            this.startDate = new Date().toString();
+            this.lastmodifiedDate = 'empty';
             this.workers = [];
         }
 
