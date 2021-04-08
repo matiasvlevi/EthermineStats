@@ -6,36 +6,14 @@ const updateMin = 15;
 const miner = "0x54CBb86D5e2895B2573F1C78A02EA4120Bf67a0C";
 const ethermine = new Ethermine();
 let beginDate = '';
-
-ethermine.getMinerPayouts(miner, function(err, pay) {
-
-	payouts = pay.data.length;
-
-
-	let path = './data/stat_payout_'+payouts+'.json';
-
-	let datajson;
-	let data;
-
-	if (!fs.existsSync(path)) {
-		beginDate = new Date().toString();
-		fs.writeFileSync(path,JSON.stringify(new Board(undefined,beginDate)),'utf-8');
-
-	}
-
-	datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
-	data = new Board(datajson);
-	//console.log(data);
-
-	function getStats() {
-		console.log('Updating Stats');
-		const ethermine = new Ethermine();
-		//ethermine.getMinerPayouts(miner, function(err, data) {
-		  //console.log(data.data.length)
-		//})
-		ethermine.getMinerWorkers(miner,function(err,out){
-			//console.log(err, out.data);
-
+function getStats(data) {
+	console.log('Updating Stats');
+	const ethermine = new Ethermine();
+	//ethermine.getMinerPayouts(miner, function(err, data) {
+	  //console.log(data.data.length)
+	//})
+	ethermine.getMinerWorkers(miner,function(err,out){
+		try {
 			for (let i = 0;i<out.data.length;i++) {
 				let person = out.data[i];
 				//console.log(data.workers['name']);
@@ -63,11 +41,35 @@ ethermine.getMinerPayouts(miner, function(err, pay) {
 				console.log("	- "+worker.name +": "+worker.percent);
 			}
 			fs.writeFileSync('./data/stat_payout_'+payouts+'.json',JSON.stringify(data),'utf-8');
-		});
+		} catch(err) {
+			console.log(err);
+		}
+	});
+}
+ethermine.getMinerPayouts(miner, function(err, pay) {
+
+	payouts = pay.data.length;
+
+
+	let path = './data/stat_payout_'+payouts+'.json';
+
+	let datajson;
+	let data;
+
+	if (!fs.existsSync(path)) {
+		beginDate = new Date().toString();
+		fs.writeFileSync(path,JSON.stringify(new Board(undefined,beginDate)),'utf-8');
+
 	}
-	getStats();
+
+	datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
+	data = new Board(datajson);
+	//console.log(data);
+
+
+	getStats(data);
 	setInterval(function() {
-	  getStats();
+	  getStats(data);
 	}, 60 * updateMin * 1000); // 60 * 1000 milsec
 
 
