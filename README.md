@@ -37,7 +37,7 @@ or
 
 You can find recorded data in `./data/stat_payout_XXXX.json`
 
-
+This is the json data structure:
 ```
 {
   totalchecks: XXXX,
