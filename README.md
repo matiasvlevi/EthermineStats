@@ -5,7 +5,7 @@
 
 1. Clone repo
 ```
-git clone https://github.com/matiasvlevi/.git
+git clone https://github.com/matiasvlevi/EthermineStats.git
 ```
 2. Install dependencies
 ```
