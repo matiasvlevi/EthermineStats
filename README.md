@@ -5,7 +5,7 @@
 
 1. Clone repo
 ```
-git clone url
+git clone https://github.com/matiasvlevi/.git
 ```
 2. Install dependencies
 ```
