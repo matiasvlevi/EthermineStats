@@ -4,11 +4,8 @@ const Person = require('./methods/person.js');
 const Board = require('./methods/board.js');
 const config = JSON.parse(fs.readFileSync('config.json','utf-8'));
 const wallet = config.adress;
-if (!(wallet[0] === "0" && wallet[1] === "x")) {
-	console.error('Wallet adress invalid');
-}
-const updateMin = config.updateFrequency;
 
+const updateMin = config.updateFrequency;
 const ethermine = new Ethermine();
 let beginDate = '';
 function getStats(data) {
@@ -46,25 +43,44 @@ function getStats(data) {
 		}
 	});
 }
-ethermine.getMinerPayouts(wallet, function(err, pay) {
+function main() {
+	ethermine.getMinerPayouts(wallet, function(err, pay) {
 
-	payouts = pay.data.length;
-	let path = './data/stat_payout_'+payouts+'.json';
+		payouts = pay.data.length;
+		let path = './data/stat_payout_'+payouts+'.json';
+	
+		let datajson;
+		let data;
+	
+		if (!fs.existsSync(path)) {
+			beginDate = new Date().toString();
+			fs.writeFileSync(path,JSON.stringify(new Board(undefined,beginDate)),'utf-8');
+	
+		}
+	
+		datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
+		data = new Board(datajson);
+	
+		getStats(data);
+		setInterval(function() {
+			getStats(data);
+		}, 60 * updateMin * 1000);
+	})
+	
+}
+if (!(wallet[0] === "0" && wallet[1] === "x")) {
+	console.error('Wallet adress invalid');
+}
 
-	let datajson;
-	let data;
+if (!fs.existsSync('./data')) {
+	fs.mkdir('./data',{recursive:true},()=>{
+		ethermine.getMinerPayouts(wallet, function(err, pay) {
+			beginDate = new Date().toString();
+			fs.writeFileSync('./data/stat_payout_'+pay.data.length+'.json',JSON.stringify(new Board(undefined,beginDate)));
+			main();
+		});
+	});
+} else {
+	main();
+}
 
-	if (!fs.existsSync(path)) {
-		beginDate = new Date().toString();
-		fs.writeFileSync(path,JSON.stringify(new Board(undefined,beginDate)),'utf-8');
-
-	}
-
-	datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
-	data = new Board(datajson);
-
-	getStats(data);
-	setInterval(function() {
-	  getStats(data);
-	}, 60 * updateMin * 1000);
-})
