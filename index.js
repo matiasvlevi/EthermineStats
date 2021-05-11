@@ -2,33 +2,32 @@ const fs = require('fs');
 const Ethermine = require('ethermine-api');
 const Person = require('./methods/person.js');
 const Board = require('./methods/board.js');
-const updateMin = 15;
-const miner = "0x54CBb86D5e2895B2573F1C78A02EA4120Bf67a0C";
+const config = JSON.parse(fs.readFileSync('config.json','utf-8'));
+const wallet = config.adress;
+if (!(wallet[0] === "0" && wallet[1] === "x")) {
+	console.error('Wallet adress invalid');
+}
+const updateMin = config.updateFrequency;
+
 const ethermine = new Ethermine();
 let beginDate = '';
 function getStats(data) {
 	console.log('Updating Stats');
 	const ethermine = new Ethermine();
-	//ethermine.getMinerPayouts(miner, function(err, data) {
-	  //console.log(data.data.length)
-	//})
-	ethermine.getMinerWorkers(miner,function(err,out){
+	ethermine.getMinerWorkers(wallet,function(err,out){
 		try {
 			for (let i = 0;i<out.data.length;i++) {
 				let person = out.data[i];
-				//console.log(data.workers['name']);
 				let p = 0;
 				for (let j = 0; j < data.workers.length;j++) {
-					//console.log(data.workers[j]['name'],person.worker);
 					if (data.workers[j]['name'] == person.worker) {
-						//console.log(data.workers);
-						data.workers[j].add(person.validShares);
+						data.workers[j].add(person.currentHashrate);
 						p++;
 					}
 				}
 				if (p == 0) {
 					const per = new Person(person.worker);
-					per.add(person.validShares);
+					per.add(person.currentHashrate);
 					data.workers.push(per);
 				}
 
@@ -43,14 +42,13 @@ function getStats(data) {
 			fs.writeFileSync('./data/stat_payout_'+payouts+'.json',JSON.stringify(data),'utf-8');
 		} catch(err) {
 			console.log(err);
+			console.error('Wallet adress probably invalid...');
 		}
 	});
 }
-ethermine.getMinerPayouts(miner, function(err, pay) {
+ethermine.getMinerPayouts(wallet, function(err, pay) {
 
 	payouts = pay.data.length;
-
-
 	let path = './data/stat_payout_'+payouts+'.json';
 
 	let datajson;
@@ -64,13 +62,9 @@ ethermine.getMinerPayouts(miner, function(err, pay) {
 
 	datajson = JSON.parse(fs.readFileSync(path,'utf-8'));
 	data = new Board(datajson);
-	//console.log(data);
-
 
 	getStats(data);
 	setInterval(function() {
 	  getStats(data);
-	}, 60 * updateMin * 1000); // 60 * 1000 milsec
-
-
+	}, 60 * updateMin * 1000);
 })
