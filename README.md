@@ -24,7 +24,7 @@ npm install
 <br/>
 
 ### Run 
-* start `run.bat` batch file.
+* start `run.bat` batch file.<br/>
 or 
 * run `npm run start`
 
