@@ -1,5 +1,5 @@
 # Ethermine Stat recorder
-Record worker stats from (https://ethermine.org/)[https://ethermine.org/]
+Record worker stats from [https://ethermine.org/](https://ethermine.org/)
 
 ### Setup
 
